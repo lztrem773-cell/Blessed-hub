@@ -1,473 +1,528 @@
--- JOKER HUB - LUA SCRIPT COMPLETO --  
--- LOCAL PLAYER & SERVICES  
-local player = game.Players.LocalPlayer  
-local gui = script.Parent  
-local UIS = game:GetService("UserInputService")  
-local RunService = game:GetService("RunService")  
-local ReplicatedStorage = game:GetService("ReplicatedStorage")  
+--// ✨ BLESSED HUB COMPLETE ✨
+--// DESIGN HTML PREMIUM CONVERTIDO PARA LUA
+--// LOCAL SCRIPT
 
--- ESTADOS DAS OPÇÕES  
-local estados = {}  
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
--- BASE POS  
-local basePos = Vector3.new(0,5,0)  
+local player = Players.LocalPlayer
 
--- REMOTES  
-local Remotes = {}  
-local function scanRemotes()  
-    Remotes = {}  
-    for _,v in pairs(game:GetDescendants()) do  
-        if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then  
-            table.insert(Remotes, v)  
-        end  
-    end  
-    print("Remotes encontrados:", #Remotes)  
-end  
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "BlessedHub"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
 
-local function fireAllRemotes()  
-    for _,remote in pairs(Remotes) do  
-        pcall(function()  
-            if remote:IsA("RemoteEvent") then  
-                remote:FireServer()  
-            elseif remote:IsA("RemoteFunction") then  
-                remote:InvokeServer()  
-            end  
-        end)  
-    end  
-end  
+-- ESTADOS
+local estados = {}
 
-local function printRemotes()  
-    for i,remote in pairs(Remotes) do  
-        print(i, remote:GetFullName())  
-    end  
-end  
+-- REMOTES
+local Remotes = {}
 
--- PROTECTION VARIABLES  
-local antiKickEnabled = false  
-local antiBanEnabled = false  
-local antiAFKEnabled = false  
-local afkLoop  
-local banMonitorLoop  
+local function scanRemotes()
+	Remotes = {}
 
--- MAIN GUI  
-local main = Instance.new("Frame", gui)  
-main.Size = UDim2.new(0,900,0,500)  
-main.Position = UDim2.new(0.2,0,0.2,0)  
-main.BackgroundColor3 = Color3.fromRGB(13,13,13)  
-main.BorderSizePixel = 0  
-main.Active = true  
-Instance.new("UICorner", main).CornerRadius = UDim.new(0,20)  
+	for _,v in pairs(game:GetDescendants()) do
+		if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+			table.insert(Remotes,v)
+		end
+	end
 
-local stroke = Instance.new("UIStroke", main)  
-stroke.Color = Color3.fromRGB(255,0,0)  
-stroke.Thickness = 2  
+	print("📡 Remotes encontrados:",#Remotes)
+end
 
--- HEADER  
-local header = Instance.new("Frame", main)  
-header.Size = UDim2.new(1,0,0,40)  
-header.BackgroundTransparency = 1  
+local function fireAllRemotes()
+	for _,v in pairs(Remotes) do
+		pcall(function()
+			if v:IsA("RemoteEvent") then
+				v:FireServer()
+			elseif v:IsA("RemoteFunction") then
+				v:InvokeServer()
+			end
+		end)
+	end
+end
 
-local title = Instance.new("TextLabel", header)  
-title.Text = "🃏 JOKER HUB"  
-title.Font = Enum.Font.Gotham  
-title.TextSize = 18  
-title.TextColor3 = Color3.fromRGB(255,0,0)  
-title.BackgroundTransparency = 1  
-title.Position = UDim2.new(0,15,0,0)  
-title.Size = UDim2.new(1,-50,1,0)  
-title.TextXAlignment = Enum.TextXAlignment.Left  
+local function printRemotes()
+	for i,v in pairs(Remotes) do
+		print(i,v:GetFullName())
+	end
+end
 
--- MINIMIZAR  
-local minBtn = Instance.new("TextButton", header)  
-minBtn.Size = UDim2.new(0,40,1,0)  
-minBtn.Position = UDim2.new(1,-40,0,0)  
-minBtn.Text = "🗕"  
-minBtn.BackgroundTransparency = 1  
-minBtn.TextColor3 = Color3.fromRGB(255,0,0)  
+-- MAIN
+local main = Instance.new("Frame")
+main.Parent = gui
+main.Size = UDim2.new(0,700,0,420)
+main.Position = UDim2.new(0.5,-350,0.5,-210)
+main.BackgroundColor3 = Color3.fromRGB(13,13,13)
+main.BorderSizePixel = 0
+main.Active = true
 
--- SIDEBAR  
-local sidebar = Instance.new("Frame", main)  
-sidebar.Size = UDim2.new(0,180,1,-40)  
-sidebar.Position = UDim2.new(0,0,0,40)  
-sidebar.BackgroundColor3 = Color3.fromRGB(8,8,8)  
+Instance.new("UICorner",main).CornerRadius = UDim.new(0,20)
 
--- CONTENT  
-local content = Instance.new("Frame", main)  
-content.Size = UDim2.new(1,-180,1,-40)  
-content.Position = UDim2.new(0,180,0,40)  
-content.BackgroundTransparency = 1  
+local stroke = Instance.new("UIStroke")
+stroke.Parent = main
+stroke.Color = Color3.fromRGB(255,215,0)
+stroke.Thickness = 2
 
--- DRAG  
-local dragging, dragStart, startPos  
-header.InputBegan:Connect(function(input)  
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then  
-        dragging = true  
-        dragStart = input.Position  
-        startPos = main.Position  
-    end  
-end)  
+-- SHADOW
+local shadow = Instance.new("ImageLabel")
+shadow.Parent = main
+shadow.BackgroundTransparency = 1
+shadow.AnchorPoint = Vector2.new(0.5,0.5)
+shadow.Position = UDim2.new(0.5,0,0.5,0)
+shadow.Size = UDim2.new(1,60,1,60)
+shadow.ZIndex = 0
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageTransparency = 0.5
 
-UIS.InputEnded:Connect(function(input)  
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then  
-        dragging = false  
-    end  
-end)  
+-- HEADER
+local header = Instance.new("Frame")
+header.Parent = main
+header.Size = UDim2.new(1,0,0,40)
+header.BackgroundTransparency = 1
 
-UIS.InputChanged:Connect(function(input)  
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then  
-        local delta = input.Position - dragStart  
-        main.Position = UDim2.new(  
-            startPos.X.Scale, startPos.X.Offset + delta.X,  
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y  
-        )  
-    end  
-end)  
+local title = Instance.new("TextLabel")
+title.Parent = header
+title.Text = "✨ BLESSED HUB"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextColor3 = Color3.fromRGB(255,215,0)
+title.BackgroundTransparency = 1
+title.Position = UDim2.new(0,15,0,0)
+title.Size = UDim2.new(1,-50,1,0)
+title.TextXAlignment = Enum.TextXAlignment.Left
 
--- MINIMIZAR FUNC  
-local aberto = true  
-minBtn.MouseButton1Click:Connect(function()  
-    aberto = not aberto  
-    content.Visible = aberto  
-    sidebar.Visible = aberto  
-    if aberto then  
-        main.Size = UDim2.new(0,900,0,500)  
-        minBtn.Text = "🗕"  
-    else  
-        main.Size = UDim2.new(0,300,0,40)  
-        minBtn.Text = "🗖"  
-    end  
-end)  
+-- MIN BUTTON
+local minBtn = Instance.new("TextButton")
+minBtn.Parent = header
+minBtn.Size = UDim2.new(0,40,1,0)
+minBtn.Position = UDim2.new(1,-40,0,0)
+minBtn.BackgroundTransparency = 1
+minBtn.Text = "🗕"
+minBtn.Font = Enum.Font.GothamBold
+minBtn.TextSize = 18
+minBtn.TextColor3 = Color3.fromRGB(255,215,0)
 
--- FUNÇÃO CRIAR OPTION  
-local function criarOption(parent,texto,callback,static)  
-    local opt = Instance.new("Frame", parent)  
-    opt.Size = UDim2.new(1,-10,0,32)  
-    opt.BackgroundColor3 = Color3.fromRGB(26,26,26)  
-    Instance.new("UICorner", opt).CornerRadius = UDim.new(0,8)  
-    local txt = Instance.new("TextLabel", opt)  
-    txt.Text = texto  
-    txt.Font = Enum.Font.Gotham  
-    txt.TextSize = 14  
-    txt.Size = UDim2.new(0.7,0,1,0)  
-    txt.Position = UDim2.new(0,10,0,0)  
-    txt.BackgroundTransparency = 1  
-    txt.TextXAlignment = Enum.TextXAlignment.Left  
-    txt.TextColor3 = static and Color3.fromRGB(120,120,120) or Color3.new(1,1,1)  
-    if static then return end  
-    local toggle = Instance.new("Frame", opt)  
-    toggle.Size = UDim2.new(0,30,0,15)  
-    toggle.Position = UDim2.new(1,-40,0.5,-7)  
-    toggle.BackgroundColor3 = Color3.fromRGB(50,50,50)  
-    Instance.new("UICorner", toggle).CornerRadius = UDim.new(1,0)  
-    local ball = Instance.new("Frame", toggle)  
-    ball.Size = UDim2.new(0,13,0,13)  
-    ball.Position = UDim2.new(0,1,0.5,-6)  
-    ball.BackgroundColor3 = Color3.new(1,1,1)  
-    Instance.new("UICorner", ball).CornerRadius = UDim.new(1,0)  
-    estados[texto] = estados[texto] or false  
-    local function update()  
-        if estados[texto] then  
-            opt.BackgroundColor3 = Color3.fromRGB(255,0,0)  
-            txt.TextColor3 = Color3.new(0,0,0)  
-            toggle.BackgroundColor3 = Color3.fromRGB(255,0,0)  
-            ball.Position = UDim2.new(1,-14,0.5,-6)  
-        else  
-            opt.BackgroundColor3 = Color3.fromRGB(26,26,26)  
-            txt.TextColor3 = Color3.new(1,1,1)  
-            toggle.BackgroundColor3 = Color3.fromRGB(50,50,50)  
-            ball.Position = UDim2.new(0,1,0.5,-6)  
-        end  
-    end  
-    update()  
-    opt.InputBegan:Connect(function(i)  
-        if i.UserInputType == Enum.UserInputType.MouseButton1 then  
-            estados[texto] = not estados[texto]  
-            update()  
-            if callback then callback(estados[texto]) end  
-        end  
-    end)  
-end  
+-- SIDEBAR
+local sidebar = Instance.new("Frame")
+sidebar.Parent = main
+sidebar.Size = UDim2.new(0,180,1,-40)
+sidebar.Position = UDim2.new(0,0,0,40)
+sidebar.BackgroundColor3 = Color3.fromRGB(8,8,8)
+sidebar.BorderSizePixel = 0
 
--- FUNÇÃO PAINEL  
-local function painel(nome)  
-    local p = Instance.new("Frame", content)  
-    p.Size = UDim2.new(0.5,-10,1,0)  
-    p.BackgroundColor3 = Color3.fromRGB(17,17,17)  
-    Instance.new("UICorner", p).CornerRadius = UDim.new(0,15)  
-    local t = Instance.new("TextLabel", p)  
-    t.Text = nome  
-    t.Font = Enum.Font.Gotham  
-    t.TextSize = 16  
-    t.TextColor3 = Color3.fromRGB(255,0,0)  
-    t.BackgroundTransparency = 1  
-    t.Size = UDim2.new(1,0,0,30)  
-    local list = Instance.new("UIListLayout", p)  
-    list.Padding = UDim.new(0,8)  
-    return p  
-end  
+-- CONTENT
+local content = Instance.new("Frame")
+content.Parent = main
+content.Size = UDim2.new(1,-180,1,-40)
+content.Position = UDim2.new(0,180,0,40)
+content.BackgroundTransparency = 1
 
--- LOOPS  
-local autoStealLoop  
-local auraLoop  
-local speedBoostLoop  
-local tradeFreezeLoop  
+local contentLayout = Instance.new("UIListLayout")
+contentLayout.Parent = content
+contentLayout.FillDirection = Enum.FillDirection.Horizontal
+contentLayout.Padding = UDim.new(0,15)
 
--- ANTI KICK  
-local function setupAntiKick()  
-    print("🛡️ Anti Kick ativado!")  
-end  
+-- DRAG
+local dragging = false
+local dragStart
+local startPos
 
-local function disableAntiKick()  
-    print("🛡️ Anti Kick desativado!")  
-end  
+header.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = main.Position
+	end
+end)
 
--- ANTI BAN  
-local function setupAntiBan()  
-    if banMonitorLoop then banMonitorLoop:Disconnect() end  
-    banMonitorLoop = RunService.Heartbeat:Connect(function()  
-        if antiBanEnabled then  
-            local playerExists = game.Players:FindFirstChild(player.Name)  
-            if not playerExists then  
-                print("⚠️ Possível tentativa de ban detectada!")  
-            end  
-        end  
-    end)  
-    print("🔒 Anti Ban ativado!")  
-end  
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
 
-local function disableAntiBan()  
-    if banMonitorLoop then banMonitorLoop:Disconnect() end  
-    print("🔒 Anti Ban desativado!")  
-end  
+UIS.InputChanged:Connect(function(input)
 
--- ANTI AFK  
-local function startAntiAFK()  
-    if afkLoop then afkLoop:Disconnect() end  
-    afkLoop = RunService.Heartbeat:Connect(function()  
-        if antiAFKEnabled then  
-            local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")  
-            if hrp then  
-                hrp.CFrame = hrp.CFrame + Vector3.new(0.01, 0, 0)  
-            end  
-        end  
-    end)  
-    print("⏰ Anti AFK ativado!")  
-end  
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 
-local function stopAntiAFK()  
-    if afkLoop then afkLoop:Disconnect() end  
-    print("⏰ Anti AFK desativado!")  
-end  
+		local delta = input.Position - dragStart
 
--- FUNÇÃO CARREGAR TABS  
-local function carregar(tab)  
-    content:ClearAllChildren()  
-    local layout = Instance.new("UIListLayout", content)  
-    layout.FillDirection = Enum.FillDirection.Horizontal  
-    layout.Padding = UDim.new(0,15)  
+		main.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
 
-    -- Auto Join  
-    if tab == "Auto Join" then  
-        local p1 = painel("Server Finder")  
-        local p2 = painel("Server Actions")  
-        criarOption(p1,"Filtrar OG")  
-        criarOption(p1,"Filtrar Secret")  
-        criarOption(p1,"Filtrar Padrão")  
-        criarOption(p1,"Nenhum servidor carregado",nil,true)  
-        criarOption(p2,"Evitar Server Vazio")  
-        criarOption(p2,"Entrar só com Players Fortes")  
-        criarOption(p2,"Manter Painel ao Entrar")  
-    end  
+	end
+end)
 
-    -- Steal  
-    if tab == "Steal" then  
-        local p = painel("Steal")  
-        criarOption(p,"⚡ Speed Boost",function(v)  
-            local hum = player.Character and player.Character:FindFirstChild("Humanoid")  
-            if hum then  
-                hum.WalkSpeed = v and 32 or 16  
-            end  
-        end)  
-        criarOption(p,"⚡ Super Speed",function(v)  
-            local hum = player.Character and player.Character:FindFirstChild("Humanoid")  
-            if hum then  
-                hum.WalkSpeed = v and 60 or 16  
-            end  
-        end)  
-        criarOption(p,"⚡ Speed x2",function(v)  
-            local hum = player.Character and player.Character:FindFirstChild("Humanoid")  
-            if hum then  
-                hum.WalkSpeed = v and 100 or 16  
-            end  
-        end)  
-        criarOption(p,"👻 Invisível", function(v)  
-            local char = player.Character  
-            if not char then return end  
-            for _,obj in pairs(char:GetDescendants()) do  
-                if obj:IsA("BasePart") then  
-                    obj.Transparency = v and 1 or 0  
-                    obj.CanCollide = true  
-                end  
-                if obj:IsA("Decal") then  
-                    obj.Transparency = v and 1 or 0  
-                end  
-            end  
-        end)  
-        criarOption(p,"🏠 TP Base",function(v)  
-            if v then  
-                local char = player.Character  
-                if char and char:FindFirstChild("HumanoidRootPart") then  
-                    char.HumanoidRootPart.CFrame = CFrame.new(basePos)  
-                end  
-            end  
-        end)  
-        criarOption(p,"🤖 Auto Steal",function(v)  
-            if v then  
-                autoStealLoop = RunService.RenderStepped:Connect(function()  
-                    for _,obj in pairs(workspace:GetDescendants()) do  
-                        if obj.Name:lower():find("brainrot") and obj:IsA("BasePart") then  
-                            local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")  
-                            if hrp then  
-                                obj.CFrame = hrp.CFrame  
-                            end  
-                        end  
-                    end  
-                end)  
-            else  
-                if autoStealLoop then  
-                    autoStealLoop:Disconnect()  
-                end  
-            end  
-        end)  
-        criarOption(p,"🌀 Steal Aura",function(v)  
-            if v then  
-                auraLoop = RunService.RenderStepped:Connect(function()  
-                    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")  
-                    if not hrp then return end  
-                    for _,obj in pairs(workspace:GetDescendants()) do  
-                        if obj.Name:lower():find("brainrot") and obj:IsA("BasePart") then  
-                            if (obj.Position - hrp.Position).Magnitude < 25 then  
-                                obj.CFrame = hrp.CFrame  
-                            end  
-                        end  
-                    end  
-                end)  
-            else  
-                if auraLoop then  
-                    auraLoop:Disconnect()  
-                end  
-            end  
-        end)  
-        criarOption(p,"⚡ Instant Steal",function(v)  
-            if v then  
-                local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")  
-                if not hrp then return end  
-                for _,obj in pairs(workspace:GetDescendants()) do  
-                    if obj.Name:lower():find("brainrot") and obj:IsA("BasePart") then  
-                        obj.CFrame = hrp.CFrame  
-                    end  
-                end  
-            end  
-        end)  
-        criarOption(p,"📡 Scan Remotes",function(v)  
-            if v then  
-                scanRemotes()  
-            end  
-        end)  
-        criarOption(p,"📜 Listar Remotes",function(v)  
-            if v then  
-                printRemotes()  
-            end  
-        end)  
-        criarOption(p,"🚀 Fire All Remotes",function(v)  
-            if v then  
-                fireAllRemotes()  
-            end  
-        end)  
-    end  
+-- MINIMIZE
+local aberto = true
 
-    -- Trade  
-    if tab == "Trade" then  
-        local p = painel("Trade System")  
-        criarOption(p,"✅ Auto Accept",function(v)  
-            if v then  
-                print("Auto Accept ativado!")  
-            else  
-                print("Auto Accept desativado!")  
-            end  
-        end)  
-        criarOption(p,"🔒 Freeze Trade",function(v)  
-            if v then  
-                if tradeFreezeLoop then tradeFreezeLoop:Disconnect() end  
-                tradeFreezeLoop = RunService.Heartbeat:Connect(function()  
-                    print("Trade congelado!")  
-                end)  
-                print("Freeze Trade ativado!")  
-            else  
-                if tradeFreezeLoop then tradeFreezeLoop:Disconnect() end  
-                print("Freeze Trade desativado!")  
-            end  
-        end)  
-        criarOption(p,"🤖 Auto Trade",function(v)  
-            if v then  
-                print("Auto Trade ativado!")  
-            else  
-                print("Auto Trade desativado!")  
-            end  
-        end)  
-    end  
+minBtn.MouseButton1Click:Connect(function()
 
-    -- Protection  
-    if tab == "Protection" then  
-        local p = painel("Protection System")  
-        criarOption(p,"🛡️ Anti Kick",function(v)  
-            antiKickEnabled = v  
-            if v then  
-                setupAntiKick()  
-            else  
-                disableAntiKick()  
-            end  
-        end)  
-        criarOption(p,"🔒 Anti Ban",function(v)  
-            antiBanEnabled = v  
-            if v then  
-                setupAntiBan()  
-            else  
-                disableAntiBan()  
-            end  
-        end)  
-        criarOption(p,"⏰ Anti AFK",function(v)  
-            antiAFKEnabled = v  
-            if v then  
-                startAntiAFK()  
-            else  
-                stopAntiAFK()  
-            end  
-        end)  
-    end  
-end  
+	aberto = not aberto
 
--- MENU LATERAL  
-local function criarMenu(nome,y)  
-    local btn = Instance.new("TextButton", sidebar)  
-    btn.Size = UDim2.new(1,-20,0,40)  
-    btn.Position = UDim2.new(0,10,0,y)  
-    btn.Text = nome  
-    btn.Font = Enum.Font.Gotham  
-    btn.TextSize = 14  
-    btn.BackgroundColor3 = Color3.fromRGB(0,0,0)  
-    btn.TextColor3 = Color3.fromRGB(170,170,170)  
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,10)  
-    btn.MouseButton1Click:Connect(function()  
-        carregar(nome)  
-    end)  
-end  
+	sidebar.Visible = aberto
+	content.Visible = aberto
 
--- CRIAR MENUS  
-criarMenu("Auto Join",10)  
-criarMenu("Steal",60)  
-criarMenu("Trade",110)  
-criarMenu("Protection",160)  
+	if aberto then
 
--- CARREGAR PADRÃO  
-carregar("Auto Join")  
+		TweenService:Create(
+			main,
+			TweenInfo.new(0.2),
+			{
+				Size = UDim2.new(0,700,0,420)
+			}
+		):Play()
+
+		minBtn.Text = "🗕"
+
+	else
+
+		TweenService:Create(
+			main,
+			TweenInfo.new(0.2),
+			{
+				Size = UDim2.new(0,260,0,40)
+			}
+		):Play()
+
+		minBtn.Text = "🗖"
+
+	end
+end)
+
+-- OPTION
+local function criarOption(parent,texto,callback,static)
+
+	local opt = Instance.new("Frame")
+	opt.Parent = parent
+	opt.Size = UDim2.new(1,-10,0,36)
+	opt.BackgroundColor3 = Color3.fromRGB(26,26,26)
+	opt.BorderSizePixel = 0
+
+	Instance.new("UICorner",opt).CornerRadius = UDim.new(0,8)
+
+	local txt = Instance.new("TextLabel")
+	txt.Parent = opt
+	txt.Text = texto
+	txt.Font = Enum.Font.Gotham
+	txt.TextSize = 14
+	txt.TextColor3 = static and Color3.fromRGB(120,120,120) or Color3.new(1,1,1)
+	txt.BackgroundTransparency = 1
+	txt.Position = UDim2.new(0,10,0,0)
+	txt.Size = UDim2.new(0.7,0,1,0)
+	txt.TextXAlignment = Enum.TextXAlignment.Left
+
+	if static then
+		return
+	end
+
+	local toggle = Instance.new("Frame")
+	toggle.Parent = opt
+	toggle.Size = UDim2.new(0,30,0,15)
+	toggle.Position = UDim2.new(1,-40,0.5,-7)
+	toggle.BackgroundColor3 = Color3.fromRGB(51,51,51)
+
+	Instance.new("UICorner",toggle).CornerRadius = UDim.new(1,0)
+
+	local ball = Instance.new("Frame")
+	ball.Parent = toggle
+	ball.Size = UDim2.new(0,13,0,13)
+	ball.Position = UDim2.new(0,1,0.5,-6)
+	ball.BackgroundColor3 = Color3.new(1,1,1)
+
+	Instance.new("UICorner",ball).CornerRadius = UDim.new(1,0)
+
+	estados[texto] = estados[texto] or false
+
+	local function update()
+
+		if estados[texto] then
+
+			TweenService:Create(opt,TweenInfo.new(0.15),{
+				BackgroundColor3 = Color3.fromRGB(255,215,0)
+			}):Play()
+
+			TweenService:Create(toggle,TweenInfo.new(0.15),{
+				BackgroundColor3 = Color3.fromRGB(255,215,0)
+			}):Play()
+
+			TweenService:Create(ball,TweenInfo.new(0.15),{
+				Position = UDim2.new(1,-14,0.5,-6)
+			}):Play()
+
+			txt.TextColor3 = Color3.new(0,0,0)
+
+		else
+
+			TweenService:Create(opt,TweenInfo.new(0.15),{
+				BackgroundColor3 = Color3.fromRGB(26,26,26)
+			}):Play()
+
+			TweenService:Create(toggle,TweenInfo.new(0.15),{
+				BackgroundColor3 = Color3.fromRGB(51,51,51)
+			}):Play()
+
+			TweenService:Create(ball,TweenInfo.new(0.15),{
+				Position = UDim2.new(0,1,0.5,-6)
+			}):Play()
+
+			txt.TextColor3 = Color3.new(1,1,1)
+
+		end
+	end
+
+	update()
+
+	opt.InputBegan:Connect(function(i)
+
+		if i.UserInputType == Enum.UserInputType.MouseButton1 then
+
+			estados[texto] = not estados[texto]
+
+			update()
+
+			if callback then
+				callback(estados[texto])
+			end
+		end
+	end)
+end
+
+-- PANEL
+local function painel(nome)
+
+	local p = Instance.new("Frame")
+	p.Parent = content
+	p.Size = UDim2.new(0.5,-10,1,0)
+	p.BackgroundColor3 = Color3.fromRGB(17,17,17)
+	p.BorderSizePixel = 0
+
+	Instance.new("UICorner",p).CornerRadius = UDim.new(0,15)
+
+	local pad = Instance.new("UIPadding")
+	pad.Parent = p
+	pad.PaddingTop = UDim.new(0,10)
+	pad.PaddingLeft = UDim.new(0,10)
+	pad.PaddingRight = UDim.new(0,10)
+
+	local title = Instance.new("TextLabel")
+	title.Parent = p
+	title.Text = nome
+	title.Font = Enum.Font.GothamBold
+	title.TextSize = 16
+	title.TextColor3 = Color3.fromRGB(255,215,0)
+	title.BackgroundTransparency = 1
+	title.Size = UDim2.new(1,0,0,30)
+	title.TextXAlignment = Enum.TextXAlignment.Left
+
+	local list = Instance.new("UIListLayout")
+	list.Parent = p
+	list.Padding = UDim.new(0,8)
+
+	return p
+end
+
+-- CLEAR CONTENT
+local function clearContent()
+
+	for _,v in pairs(content:GetChildren()) do
+		if not v:IsA("UIListLayout") then
+			v:Destroy()
+		end
+	end
+end
+
+-- LOAD TABS
+function carregar(tab)
+
+	clearContent()
+
+	-- AUTO JOIN
+	if tab == "Auto Join" then
+
+		local p1 = painel("Server Finder")
+		local p2 = painel("Server Actions")
+
+		criarOption(p1,"Filtrar OG")
+		criarOption(p1,"Filtrar Secret")
+		criarOption(p1,"Filtrar Padrão")
+		criarOption(p1,"Nenhum servidor carregado",nil,true)
+
+		criarOption(p2,"Evitar Server Vazio")
+		criarOption(p2,"Entrar só com Players Fortes")
+		criarOption(p2,"Manter Painel ao Entrar")
+
+	end
+
+	-- STEAL
+	if tab == "Steal" then
+
+		local p1 = painel("Steal")
+		local p2 = painel("Extras")
+
+		criarOption(p1,"⚡ Speed Boost",function(v)
+
+			local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+
+			if hum then
+				hum.WalkSpeed = v and 32 or 16
+			end
+		end)
+
+		criarOption(p1,"⚡ Super Speed",function(v)
+
+			local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+
+			if hum then
+				hum.WalkSpeed = v and 60 or 16
+			end
+		end)
+
+		criarOption(p1,"⚡ Speed x2",function(v)
+
+			local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+
+			if hum then
+				hum.WalkSpeed = v and 100 or 16
+			end
+		end)
+
+		criarOption(p1,"👻 Invisível",function(v)
+
+			local char = player.Character
+
+			if not char then return end
+
+			for _,obj in pairs(char:GetDescendants()) do
+
+				if obj:IsA("BasePart") then
+					obj.Transparency = v and 1 or 0
+				end
+
+				if obj:IsA("Decal") then
+					obj.Transparency = v and 1 or 0
+				end
+			end
+		end)
+
+		criarOption(p1,"🏠 TP Base",function(v)
+
+			if v then
+
+				local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+				if hrp then
+					hrp.CFrame = CFrame.new(0,5,0)
+				end
+			end
+		end)
+
+		criarOption(p2,"🤖 Auto Steal")
+		criarOption(p2,"🌀 Steal Aura")
+		criarOption(p2,"⚡ Instant Steal")
+
+		criarOption(p2,"📡 Scan Remotes",function(v)
+			if v then
+				scanRemotes()
+			end
+		end)
+
+		criarOption(p2,"📜 Listar Remotes",function(v)
+			if v then
+				printRemotes()
+			end
+		end)
+
+		criarOption(p2,"🚀 Fire All Remotes",function(v)
+			if v then
+				fireAllRemotes()
+			end
+		end)
+
+	end
+
+	-- TRADE
+	if tab == "Trade" then
+
+		local p = painel("Trade System")
+
+		criarOption(p,"✅ Auto Accept")
+		criarOption(p,"🔒 Freeze Trade")
+		criarOption(p,"🤖 Auto Trade")
+
+	end
+
+	-- PROTECTION
+	if tab == "Protection" then
+
+		local p = painel("Protection")
+
+		criarOption(p,"🛡️ Anti Kick")
+		criarOption(p,"🔒 Anti Ban")
+		criarOption(p,"⏰ Anti AFK")
+
+	end
+end
+
+-- MENUS
+local menus = {}
+
+local function criarMenu(nome,y)
+
+	local btn = Instance.new("TextButton")
+	btn.Parent = sidebar
+	btn.Size = UDim2.new(1,-20,0,40)
+	btn.Position = UDim2.new(0,10,0,y)
+	btn.BackgroundColor3 = Color3.fromRGB(0,0,0)
+	btn.TextColor3 = Color3.fromRGB(220,220,220)
+	btn.Text = nome
+	btn.Font = Enum.Font.Gotham
+	btn.TextSize = 14
+	btn.BorderSizePixel = 0
+
+	Instance.new("UICorner",btn).CornerRadius = UDim.new(0,10)
+
+	table.insert(menus,btn)
+
+	local function activate()
+
+		for _,b in pairs(menus) do
+			b.BackgroundColor3 = Color3.fromRGB(0,0,0)
+			b.TextColor3 = Color3.fromRGB(220,220,220)
+		end
+
+		btn.BackgroundColor3 = Color3.fromRGB(255,215,0)
+		btn.TextColor3 = Color3.new(0,0,0)
+
+	end
+
+	btn.MouseButton1Click:Connect(function()
+
+		activate()
+
+		carregar(nome)
+
+	end)
+
+	return btn
+end
+
+-- CREATE MENUS
+local autoBtn = criarMenu("Auto Join",10)
+criarMenu("Steal",60)
+criarMenu("Trade",110)
+criarMenu("Protection",160)
+
+-- DEFAULT
+autoBtn.BackgroundColor3 = Color3.fromRGB(255,215,0)
+autoBtn.TextColor3 = Color3.new(0,0,0)
+
+carregar("Auto Join")
